@@ -1,15 +1,17 @@
-const express = 'express';
+const express = require("express")
+const { router: userRouter, handleErrors } = require("./users/userRouter")
 
-const server = express();
+const server = express()
 
-server.get('/', (req, res) => {
-  res.send(`<h2>Let's write some middleware!</h2>`)
-});
+server.use(express.json())
+server.use("/", logger, handleErrors, userRouter)
 
 //custom middleware
 
 function logger(req, res, next) {
+  console.log(`${req.method} to ${req.path} at ${Date.now()} `)
 
-};
+  next()
+}
 
-module.exports = server;
+module.exports = server
