@@ -1,6 +1,8 @@
 const express = require("express")
 const Users = require("../users/userDb")
 
+const postRouter = require("../posts/postRouter")
+
 const router = express.Router()
 
 const {
@@ -8,6 +10,15 @@ const {
   validateUserId,
   handleErrors
 } = require("../middleware/index")
+
+router.use(
+  "/:id/posts",
+  function(req, res, next) {
+    req.user_id = req.params.id
+    next()
+  },
+  postRouter
+)
 
 /**
  * setup middleware
