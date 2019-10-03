@@ -8,7 +8,8 @@ const {
 const Posts = require("../posts/postDb")
 const Users = require("../users/userDb")
 
-const router = express.Router()
+// now we can merge params!
+const router = express.Router({ mergeParams: true })
 
 router.get("/", async (req, res) => {
   const posts = await Users.getUserPosts(req.user_id)

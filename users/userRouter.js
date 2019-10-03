@@ -11,14 +11,15 @@ const {
   handleErrors
 } = require("../middleware/index")
 
-router.use(
-  "/:id/posts",
-  function(req, res, next) {
-    req.user_id = req.params.id
-    next()
-  },
-  postRouter
-)
+// old way to send params
+// router.use(
+//   "/:id/posts",
+//   function(req, res, next) {
+//     req.user_id = req.params.id
+//     next()
+//   },
+//   postRouter
+// )
 
 /**
  * setup middleware
