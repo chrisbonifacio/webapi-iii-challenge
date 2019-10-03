@@ -1,4 +1,5 @@
 const express = require("express")
+
 const {
   validatePost,
   validateUserId,
@@ -10,8 +11,7 @@ const Users = require("../users/userDb")
 const router = express.Router()
 
 router.get("/", async (req, res) => {
-  console.log("USER ID:", req.user.id)
-  const posts = await Users.getUserPosts(req.user.id)
+  const posts = await Users.getUserPosts(req.user_id)
   if (posts) {
     res.status(200).json(posts)
   } else {
@@ -24,11 +24,24 @@ router.get("/:post_id", validatePostId, async (req, res) => {
   res.status(200).json(post)
 })
 
+router.post("/", validatePost, async (req, res) => {
+  try {
+    var newPost = await Posts.insert({
+      user_id: req.user_id,
+      text: req.body.text
+    })
+    res.status(200).json(newPost)
+  } catch (e) {
+    res.status(500).json({ error: "Error while adding post to database" })
+  }
+})
+
 router.put("/:post_id", validatePostId, async (req, res) => {
   const changes = req.body
   const postId = req.params.post_id
   try {
-    const updatedPost = await Posts.update(postId, changes)
+    await Posts.update(postId, changes)
+    const updatedPost = await Posts.getById(postId)
     res.status(200).json(updatedPost)
   } catch (e) {
     res.status(500).json({ error: "Error while updating the specified post" })
@@ -55,7 +68,7 @@ async function validatePostId(req, res, next) {
     req.post = post
     next()
   } else {
-    next({ code: 400, message: "invalid post" })
+    next({ code: 400, message: "Could not retrieve post with that ID" })
   }
 }
 
