@@ -1,47 +1,56 @@
-const express = 'express';
+const express = require("express")
+const Users = require("../users/userDb")
 
-const router = express.Router();
+const postRouter = require("../posts/postRouter")
 
-router.post('/', (req, res) => {
+const router = express.Router()
 
-});
+const {
+  validateUser,
+  validateUserId,
+  handleErrors
+} = require("../middleware/index")
 
-router.post('/:id/posts', (req, res) => {
+// old way to send params
+// router.use(
+//   "/:id/posts",
+//   function(req, res, next) {
+//     req.user_id = req.params.id
+//     next()
+//   },
+//   postRouter
+// )
 
-});
+/**
+ * setup middleware
+ */
+router.use("/:id", validateUserId, handleErrors)
 
-router.get('/', (req, res) => {
+router.get("/", handleErrors, async (req, res) => {
+  const users = await Users.get()
+  res.status(200).json(users)
+})
 
-});
+router.post("/", validateUser, handleErrors, async (req, res) => {
+  const user = await Users.insert(req.body)
+  res.status(201).json(user)
+})
 
-router.get('/:id', (req, res) => {
+router.get("/:id", (req, res) => {
+  res.status(200).json(req.user)
+})
 
-});
+router.put("/:id", validateUser, handleErrors, (req, res) => {})
 
-router.get('/:id/posts', (req, res) => {
+router.delete("/:id", async (req, res) => {
+  // await all promises, return list of resolved promises
+  // deconstruct values from array for use
+  const [user] = await Promise.all([
+    Users.getById(req.user.id),
+    Users.remove(req.user.id)
+  ])
 
-});
+  res.status(200).json(user)
+})
 
-router.delete('/:id', (req, res) => {
-
-});
-
-router.put('/:id', (req, res) => {
-
-});
-
-//custom middleware
-
-function validateUserId(req, res, next) {
-
-};
-
-function validateUser(req, res, next) {
-
-};
-
-function validatePost(req, res, next) {
-
-};
-
-module.exports = router;
+module.exports = router
